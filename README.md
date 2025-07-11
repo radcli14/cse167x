@@ -25,3 +25,20 @@ UC San DiegoX Computer Graphics
 - Global illumination (Whitted), recursive raytracing, bubble refraction image
 - Radiosity (Goral, Torrance), interacting and reflecting light where one object illuminates another
 - Rendering equation (Kajiya), unified many of the methods and visual phenomena
+
+## Lecture 2 (Basic Math)
+
+### Dot Products
+
+- "Scalar" product
+```math
+\mathbf{a} \cdot \mathbf{b}= \mathbf{b} \cdot {a} = x_a x_b + y_a y_b = \| \mathbf{a} \|  \| \mathbf{b} \| \cos \phi
+```
+- Angle $$\phi$$ between two vectors
+```math
+\phi = \cos^{-1} \left( \frac{\mathbf{a} \cdot \mathbf{b}}{ \| \mathbf{a} \| \| \mathbf{b} \| }  \right)
+```
+- Used to project one vector onto another
+```math
+\| \mathbf{b} \rightarrow \mathbf{a} \| = \| \mathbf{b} \| \cos \phi = \frac{ \mathbf{a} \cdot \mathbf{b} } { \| a \| }
+```
