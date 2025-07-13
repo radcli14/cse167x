@@ -100,3 +100,19 @@ x_b \\ y_b \\ z_b
 ### Matrices
 - In matrix multiplication, element $$(i, j)$$ is the dot product of the vector defined by row $$i$$ of the first matrix with column $$j$$ of the second matrix
 - Not commutative, $$\mathbf{AB} \neq \mathbf{BA}$$ in general, can be dimensionally incompatible
+
+### Homework 0
+- First homework is almost entirely to set up the system to compile a demo C++ app that calls on dependencies that will be used in subsequent homework projects
+- The FAQ in the course indicates it is *required* to run this demo using Rosetta on Apple Silicon; this is *not* true
+- Review of the discussion board, particularly [this post](https://discussions.edx.org/course-v1:UCSanDiegoX+CSE167x+2T2018/posts/61ddb33b6100fc048488dc3f) provides explanation of how to configure your system on an M1 or more recent chip
+- Brew should be installed, though the default, ARM-native version will work, counter to what the FAQ says
+- Install the dependencies using:
+```
+`brew install glew freeglut mesa-glu freeimage (brew installed in /opt/homebrew)`
+```
+- [This commit](https://github.com/radcli14/cse167x/commit/25a193ef776406de68e326c7dc18a79142daa292) shows changes to the Makefile which are required to make sure the dependencies get linked properly, particularly the change of the source paths in the `INCFLAGS` and `LDFLAGS`
+- The same commit shows the change in the C++ file to change the highlight color, resulting renders look as follows:
+
+| Screenshot 1                                   | Screenshot 2                                   |
+|------------------------------------------------|------------------------------------------------|
+| ![Screenshot 1](hw0-linux_osx/screenshot1.png) | ![Screenshot 2](hw0-linux_osx/screenshot2.png) |
