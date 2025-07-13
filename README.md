@@ -107,8 +107,8 @@ x_b \\ y_b \\ z_b
 - Review of the discussion board, particularly [this post](https://discussions.edx.org/course-v1:UCSanDiegoX+CSE167x+2T2018/posts/61ddb33b6100fc048488dc3f) provides explanation of how to configure your system on an M1 or more recent chip
 - Brew should be installed, though the default, ARM-native version will work, counter to what the FAQ says
 - Install the dependencies using:
-```
-`brew install glew freeglut mesa-glu freeimage (brew installed in /opt/homebrew)`
+```console
+brew install glew freeglut mesa-glu freeimage  # brew installed in /opt/homebrew
 ```
 - [This commit](https://github.com/radcli14/cse167x/commit/25a193ef776406de68e326c7dc18a79142daa292) shows changes to the Makefile which are required to make sure the dependencies get linked properly, particularly the change of the source paths in the `INCFLAGS` and `LDFLAGS`
 - The same commit shows the change in the C++ file to change the highlight color, resulting renders look as follows:
