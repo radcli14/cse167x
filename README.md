@@ -143,6 +143,11 @@ x + a y \\ y
 \end{bmatrix}
 ```
 
+### Composing Transforms
+- Not commutative, order matters when combining rotations and scales
+- Rotation prior to a scale has similar effect to a scale
+- Last transformation applied needs to be the first one undone in an inverse operation
+
 ### 3D Rotations
 - 2D case of rotation
 ```math
@@ -165,4 +170,36 @@ x + a y \\ y
   - "Rodrigues Rotation Formula"
   - <img width="608" height="521" alt="image" src="https://github.com/user-attachments/assets/b97f6c0a-0e78-4468-b471-570eaf0e43c1" />
 
+## Lecture 4 (Transforms 2)
 
+### Homogeneous Coordinates
+- Add a fourth coordinate to the xyz vector, call it "w", can use "w=1"
+- Translation in matrix format, example, translate by 5 in x
+```math
+\begin{bmatrix} x+5 \\ y \\ z \\ 1 \end{bmatrix} =
+\begin{bmatrix}
+1 & 0 & 0 & 5 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix} x \\ y \\ z \\ 1 \end{bmatrix} =
+\begin{bmatrix} x \\ y \\ z \\ w \end{bmatrix}
+```
+- The "unhomogenous" coordinates are the case where $$w \neq 1$$, get "homogeneous" by dividing by w
+- Modifying w can provide additional operations
+- Homogeneous provide a unified framework of a transform matrix for translation, viewing, rotation, and can concatenate homogenous coordinates
+- General translation matrix
+```math
+\mathbf{T} =
+\begin{bmatrix}
+1 & 0 & 0 & T_x \\
+0 & 1 & 0 & T_y \\
+0 & 0 & 1 & T_z \\
+0 & 0 & 0 & 1
+\end{bmatrix} =
+\begin{bmatrix}
+\mathbf{I}_3 & \boldsymbol{T} \\
+0 & 1
+\end{bmatrix}
+```
