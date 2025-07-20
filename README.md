@@ -116,3 +116,53 @@ brew install glew freeglut mesa-glu freeimage  # brew installed in /opt/homebrew
 | Screenshot 1                                   | Screenshot 2                                   |
 |------------------------------------------------|------------------------------------------------|
 | ![Screenshot 1](hw0-linux_osx/screenshot1.png) | ![Screenshot 2](hw0-linux_osx/screenshot2.png) |
+
+## Lecture 3 (Transforms 1)
+
+### Basic 2D Transforms
+- Scaling transformation
+```math
+\begin{bmatrix}
+s_x && 0 \\ 0 && s_y 
+\end{bmatrix}
+\begin{bmatrix}
+x \\ y
+\end{bmatrix} =
+\begin{bmatrix} s_x x \\ s_y y \end{bmatrix}
+```
+- Shear transform, turns a rectangular into a parallelogram
+```math
+\begin{bmatrix}
+1 && a \\ 0 && 1
+\end{bmatrix}
+\begin{bmatrix}
+x \\ y
+\end{bmatrix} =
+\begin{bmatrix}
+x + a y \\ y
+\end{bmatrix}
+```
+
+### 3D Rotations
+- 2D case of rotation
+```math
+\begin{bmatrix} x^\prime \\ y^\prime \end{bmatrix} =
+\begin{bmatrix}
+\cos \theta && -\sin \theta \\
+\sin \theta && \cos \theta
+\end{bmatrix}
+\begin{bmatrix} x \\ y \end{bmatrix} 
+```
+- 3D case, rows of matrix are unit vectors in a new coordinate frame, form a projection of a point into new coordinate frame
+- Inverse or transpose of the rotation matrix transpose project `uvw` vector back into the original `xyz` frame
+- Not commutative, a rotation by $$x$$ before $$y$$ is not the same as a rotation by $$y$$ before $$x$$
+- Angle axis rotations, rotate vector $$b$$ by an angle $$\theta$$ about vector $$a$$
+  - Vector $$\mathbf{b}$$ may be considered to have a component $$\mathbf{b}_\parallel$$ parallel to $$a$$ and a component orthogonal  
+  - $$\mathbf{b}_\parallel = (\mathbf{a} \cdot \mathbf{b}) \mathbf{a}$$
+  - $$\mathbf{b}_\perp = \mathbf{b} - \mathbf{b}_\parallel$$
+  - Vector $$\mathbf{c}$$ is parallel to both $$\mathbf{a}$$ and $$\mathbf{b}$$
+  - <img width="612" height="516" alt="image" src="https://github.com/user-attachments/assets/2e8429d6-bc97-4e92-92b8-ee2d0149df8a" />
+  - "Rodrigues Rotation Formula"
+  - <img width="608" height="521" alt="image" src="https://github.com/user-attachments/assets/b97f6c0a-0e78-4468-b471-570eaf0e43c1" />
+
+
