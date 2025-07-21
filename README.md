@@ -203,3 +203,15 @@ x + a y \\ y
 0 & 1
 \end{bmatrix}
 ```
+- In the above, the translation is in the reference coordinates, applied first, then the rotation
+
+### Finding Normal Transformations
+- Important in lighting, intensity on a surface depends on angle between the light and the surface, highlights depend on the angle between the viewer, surface normal, and light source
+- Normal transforms do not follow point transforms (tangents do follow point transforms, as they are points)
+- Normals are orthogonal to the tangents, so dot product with tangents equals zero
+- Normal transform matrix is inverse transpose of the tangent transform matrix, only applies to the upper 3x3, not to the homogeneous coordinate
+
+### Rotations and Coordinate Frames
+- Defines both an origin position and an orientation
+- Rows of a rotation matrix are three unit vectors that make up the frame
+- 
