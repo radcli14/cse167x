@@ -226,6 +226,38 @@ x + a y \\ y
 - Translation is applied first to bring the camera to its new origin before rotating it
 - <img width="611" height="351" alt="image" src="https://github.com/user-attachments/assets/318bca5c-1bd4-4469-bd3e-63091ce00220" />
 
+## Lecture 5: Viewing
+
+### Orthographic Projection
+- Projection of 3D into 2D space
+- Viewing transformations will use the last row, w not always equal to one
+- Trivial orthographic transformation transforms 3D to 2D by dropping the Z-coordinate after transformation into camera frame
+- Have a general cube in 3D, map it to [[-1, 1], [-1, 1], [-1, 1]]
+- First center, then scale, replace far and near with their negative values for the -Z viewing conventions
+- <img width="623" height="360" alt="image" src="https://github.com/user-attachments/assets/8d9d1bb3-a279-4f9b-b908-fcc0436553bf" />
+
+### Viewing Perspective
+- Camera is "center of projection"
+- $$ x^\prime = d \frac{x}{z} $$ simple formula, implies how size shifts as viewing distance changes
+- <img width="606" height="326" alt="image" src="https://github.com/user-attachments/assets/aff4ae2a-013d-4502-b57e-5f5f54591eca" />
+
+### `gluPerpective`
+- Viewing pipeline is a `gluLookAt` followed by a `gluPerspective`
+- Viewing frustrum, anything before near or after far gets blocked out
+- <img width="614" height="353" alt="image" src="https://github.com/user-attachments/assets/33bde9c2-e835-4bb0-9a58-3792483a1bc5" />
+- Field of view defined in Y, aspect ratio defines width to height
+- `gluPerspective(fovy, aspect, znear, zfar)`, near and far must be >0
+- <img width="621" height="355" alt="image" src="https://github.com/user-attachments/assets/51ce6910-cec3-47c3-8128-d554e2990c52" />
+- <img width="622" height="353" alt="image" src="https://github.com/user-attachments/assets/a34fc1ae-c69e-4352-a323-799b98a67105" />
+- Important not to set near plane to zero or far plane to infinity, either of these would destroy depth resolution
+- Less sensitive to far plane, it can be very large, but it is important for near plane to coincide with your objects
+- <img width="612" height="347" alt="image" src="https://github.com/user-attachments/assets/87c5883d-b9d3-4cc5-9de6-c2ac3821c508" />
+- Lighting is performed in eye coordinates
+- 
+
+
+
+
 
 
 
