@@ -8,6 +8,8 @@
 // Helper rotation function.  
 mat3 Transform::rotate(const float degrees, const vec3& axis) {
 	// YOUR CODE FOR HW1 HERE
+	float c = cos(degrees * pi / 180.0f);
+	float s = sin(degrees * pi / 180.0f);
 
 	// You will change this return call
 	return mat3();
