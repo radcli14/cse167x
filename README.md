@@ -214,4 +214,18 @@ x + a y \\ y
 ### Rotations and Coordinate Frames
 - Defines both an origin position and an orientation
 - Rows of a rotation matrix are three unit vectors that make up the frame
-- 
+
+### Derivation of gluLookAt
+- Derives a 4x4 matrix to view objects and position a camera in the world
+- `gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz`
+- Camera is eye, looking at center, with up vector
+- Creates a coordinate frame, defines a rotation, and applies a transformation
+- Coordinate frame calculated according to "orthornormal coordinate frame" section earlier, $$a$$ vector is eye-center, $$b$$ vector is up
+- In OpenGL convention, camera always looks in the -Z direction
+- Rows of rotation matrix are the the new unit vectors constructed above
+- Translation is applied first to bring the camera to its new origin before rotating it
+- <img width="611" height="351" alt="image" src="https://github.com/user-attachments/assets/318bca5c-1bd4-4469-bd3e-63091ce00220" />
+
+
+
+
