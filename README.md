@@ -253,7 +253,15 @@ x + a y \\ y
 - Less sensitive to far plane, it can be very large, but it is important for near plane to coincide with your objects
 - <img width="612" height="347" alt="image" src="https://github.com/user-attachments/assets/87c5883d-b9d3-4cc5-9de6-c2ac3821c508" />
 - Lighting is performed in eye coordinates
-- 
+
+## Homework 1
+- The purpose of this assignment is to implement a series of functions required to render a teapot, and orbit the position of the camera
+- All code changes are contained in the [`Transform.cpp`](https://github.com/radcli14/cse167x/blob/main/hw1-linux_osx/Transform.cpp) file
+- The rotate method creates a rotation matrix based on an angle in degrees and a rotation axis, and you must return a 3x3 matrix based on the Rodrigues equation
+- The left and up methods reposition the camera "eye" based on an angle in degrees in a certain direction, for the left method, the direction is just the current up vector, for the up method, you must calculate the right vector based on a cross product, and normalize it.
+- The lookAt method is simply a clone of GLM's built-in lookAt method
+- Results are various rendered images of the teapot, at variation combinations of rotations, like this:
+![Teapot Render](hw1-linux_osx/results/input.txt.003.png)
 
 
 
