@@ -263,6 +263,51 @@ x + a y \\ y
 - Results are various rendered images of the teapot, at variation combinations of rotations, like this:
 ![Teapot Render](hw1-linux_osx/results/input.txt.003.png)
 
+## Lecture 6 (OpenGL 1)
+
+### Overview
+- Introduced in 1992, today maintained by Khronos group
+- Scan conversion / rasterization is mapping 3d geometry locations with pixel locations
+- Vertex shader performs geometry primitive operations
+- Fragment programming (shaders) interact with the graphics, GPU
+- Operates in parallel on all fragments
+
+### Buffers and Matrices
+- Color (front/back/left/right), depth (z)
+- Buffer arrays manage vertices
+- <img width="609" height="344" alt="image" src="https://github.com/user-attachments/assets/1b00aeea-899f-466b-8815-9608d757d522" />
+- <img width="606" height="347" alt="image" src="https://github.com/user-attachments/assets/296c1617-3a77-4b24-a91a-c2ec7ac26349" />
+- Two parts to viewing, object positioning, and view projection
+- Terminology of model view refers to positioning of objects as if camera were at the origin pointing in -Z
+- GLM library replaced many deprecated functions from "old" OpenGL
+
+### Window System and Callbacks
+- Window system interactions are not part of OpenGL
+- This is where GLUT is used
+- <img width="613" height="343" alt="image" src="https://github.com/user-attachments/assets/bada436b-8940-4af2-80f8-78426020e459" />
+- Callbacks are used to handle specifying the size/shape of a window, mouse/keyboard interactions, etc
+
+### Drawing
+- Modern OpenGL has fewer primitives, removed quads, general polygons and quad strips
+- Currently points, lines, triangles, triangle strips, and triangle fans
+- More complex shapes need to be converted into triangles
+- Previously would set a color of a vertex prior to its position
+- Modern OpenGL uses a concept of "Vertex Array Objects" (vertices -> colors -> indices/elements)
+- <img width="610" height="353" alt="image" src="https://github.com/user-attachments/assets/52a20af2-f7da-4335-895e-604e536d94fa" />
+- <img width="613" height="345" alt="image" src="https://github.com/user-attachments/assets/acd535e7-e506-4d20-abb9-8f3b37b1a82e" />
+- <img width="610" height="344" alt="image" src="https://github.com/user-attachments/assets/5fbcea0e-896f-452e-8fde-5ffa4219a8f5" />
+- <img width="612" height="344" alt="image" src="https://github.com/user-attachments/assets/91d9eb23-dd58-4a1a-9e98-17790921c296" />
+- <img width="612" height="345" alt="image" src="https://github.com/user-attachments/assets/c6c2e255-62dc-42ba-8a87-5a5bb277de73" />
+- Note that .frag and .vert shaders are files, but they could just be strings in the program, kept separately for organization
+
+### Initializing Shaders
+- Rasterization -> taking vertices of triangles and determining which pixels they occupy on screen
+- Vertex shader is called separately for each vertex in parallel
+- For each primitive, a fragment is generated for each pixel the primitive covers
+- For each fragment, the user generated fragment shader is called, shading a lighting calculations are performed, and Z-buffer test for depth and occlusion
+- Shaders are compiled on demand, when initialized, because they are GPU code that does not necessarily have same instruction set as the host CPU
+
+
 
 
 
