@@ -307,6 +307,41 @@ x + a y \\ y
 - For each fragment, the user generated fragment shader is called, shading a lighting calculations are performed, and Z-buffer test for depth and occlusion
 - Shaders are compiled on demand, when initialized, because they are GPU code that does not necessarily have same instruction set as the host CPU
 
+## Lecture 7 (OpenGL Shading)
+
+### Motivation
+- Flat shading: entire face has single color from one vertex
+- Smooth (Gourad) shading: colors are determined from multiple vertices and interpolated
+- Specular shading involves interpolating the normals from each vertex
+- 32-bit color assigns 8 bits to each color in the RGBA spectrum
+- OpenGL normalizes colors from 0->255 into range 0->1
+
+### Gourad and Phong
+- Gourad performs interpolation first in the vertical then horizontal, current implementation more efficient
+- Phong illumination model used with specular or glossy materials
+  - For plastic materials, highlight is color of light source (not the object)
+  - For metallic materials, highlight is color of materials
+  - Roughness blurs the highlights
+- Phong shading produces the highlights, interpolates the normals before colors
+
+### Lighting and Shading
+- Point light source has a position in the world and color, uses a quadratic attenuation function
+```math
+atten = \frac{1}{k_c + k_l d + k_q d^2}
+```
+- Directional light sources include no attenuation function
+- With complex shapes, vertex normals may be based on averaging nearby face normals
+- Emissive term, only valid when looking directly at the material
+- Ambient term, even when there is no source in the scene, a constant light value that comes from all directions
+- Diffuse term, light that reflects equally in all directions, includes cosine term N * L from the normal dotted with light vector
+- <img width="608" height="344" alt="image" src="https://github.com/user-attachments/assets/10887498-1be8-4b5f-b338-ecf2b6007cd3" />
+- Specular term, light reflection in the mirror direction, with some scatter, can raise the cosine term of the angle between mirror vector and view vector to some power to vary roughness
+- <img width="615" height="350" alt="image" src="https://github.com/user-attachments/assets/813c5d8d-c863-4cb8-a530-395107b3972a" />
+- <img width="611" height="346" alt="image" src="https://github.com/user-attachments/assets/a79e4628-5cac-439f-8852-64c3179de3cf" />
+
+
+
+
 
 
 
