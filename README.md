@@ -339,13 +339,14 @@ atten = \frac{1}{k_c + k_l d + k_q d^2}
 - <img width="615" height="350" alt="image" src="https://github.com/user-attachments/assets/813c5d8d-c863-4cb8-a530-395107b3972a" />
 - <img width="611" height="346" alt="image" src="https://github.com/user-attachments/assets/a79e4628-5cac-439f-8852-64c3179de3cf" />
 
-
-
-
-
-
-
-
-
-
-
+### Fragment Shader
+- Input vertex, normals, and texture coordinates provided by vertex shader
+- Output is a fragment color
+- Ambient, diffuse, specular are RGB colors, shininess is a float value, are material properties
+- Lambert shading is the dot product of the surface normal to the direction of the light source, times diffuse color
+- Phong shading is the dot product of the surface normal with the half vector between the light and the viewer, times the specular color, times the light color, times the dot product above raised to the shininess power
+- Lambert and Phong are added and returned as the `retval`
+- <img width="611" height="345" alt="image" src="https://github.com/user-attachments/assets/23726c4c-94d4-4a55-b091-93e35cf918c2" />
+- Lights transform like other objects, but only by model view, not projection
+- `glUniform` essentially sets a uniform variable to a specific value. If the value on the CPU host program is changed after `glUniform` is called, the shader retains the value from when `glUniform` was actually called.
+  
