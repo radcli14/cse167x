@@ -350,3 +350,8 @@ atten = \frac{1}{k_c + k_l d + k_q d^2}
 - Lights transform like other objects, but only by model view, not projection
 - `glUniform` essentially sets a uniform variable to a specific value. If the value on the CPU host program is changed after `glUniform` is called, the shader retains the value from when `glUniform` was actually called.
   
+## Lecture 8 OpenGL 2
+
+### Geometry
+- Must set up buffers for objects, elements, vertices, and normals
+- To add per-vertex color to our shape in modern OpenGL, what must we provide in addition to draw code without color? We must change the client state to GL_COLOR_ARRAY and bind the appropriate buffer for per-vertex colors. A glUniform call will not operate per-vertex, and we do not need to "unbind" existing buffers.
