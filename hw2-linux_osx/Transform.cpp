@@ -76,24 +76,48 @@ mat4 Transform::lookAt(const vec3 &eye, const vec3 &center, const vec3 &up)
 mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFar)
 {
   mat4 ret;
-  // YOUR CODE FOR HW2 HERE
-  // New, to implement the perspective transform as well.  
+  // Calculate the d term that is the cotangent of the half field-of-view
+  float theta = fovy / 2.0f;
+  float d = 1.0f / tan(theta);
+
+  // Calculate the A and B values for the projection of the Z-component
+  float A = -(zFar + zNear) / (zFar - zNear);
+  float B = -2.0f * zFar * zNear / (zFar - zNear);
+
+  // Build the matrix
+  ret[0][0] = d / aspect;
+  ret[1][1] = d;
+  ret[2][2] = A;
+  ret[2][3] = B;
+  ret[3][2] = -1.0f;
+  ret[3][3] = 0.0f;
+  
   return ret;
 }
 
 mat4 Transform::scale(const float &sx, const float &sy, const float &sz) 
 {
-  mat4 ret;
-  // YOUR CODE FOR HW2 HERE
-  // Implement scaling 
+  // Initialize the returned matrix as an identity
+  mat4 ret = mat4(1.0f);
+
+  // Add the scale vector in the fourth row
+  ret[3][0] = sx;
+  ret[3][1] = sy;
+  ret[3][2] = sz;
+
   return ret;
 }
 
 mat4 Transform::translate(const float &tx, const float &ty, const float &tz) 
 {
-  mat4 ret;
-  // YOUR CODE FOR HW2 HERE
-  // Implement translation 
+  // Initialize the returned matrix as an identity
+  mat4 ret = mat4(1.0f);
+
+  // Add the translation vector in the fourth column
+  ret[0][3] = tx;
+  ret[1][3] = ty;
+  ret[2][3] = tz;
+
   return ret;
 }
 
