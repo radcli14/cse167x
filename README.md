@@ -355,3 +355,25 @@ atten = \frac{1}{k_c + k_l d + k_q d^2}
 ### Geometry
 - Must set up buffers for objects, elements, vertices, and normals
 - To add per-vertex color to our shape in modern OpenGL, what must we provide in addition to draw code without color? We must change the client state to GL_COLOR_ARRAY and bind the appropriate buffer for per-vertex colors. A glUniform call will not operate per-vertex, and we do not need to "unbind" existing buffers.
+
+### Matrix Stacks
+<img width="613" height="349" alt="image" src="https://github.com/user-attachments/assets/201d9a6a-6e68-4fde-9715-13aac5cbc203" />
+- Push and pop matrix operations for the model view stack, push to the top of the stack, pop takes the matrix from the top of the stack and returns it
+- Changing the order of drawing will place an item (the floor) in front of items that were drawn before it, if Z-buffering not used
+- What do shaders know about matrix stacks? Matrices are much like any other shader variable. The data structure used to maintain and define the values in the host program is not important to the shader. The shader will only see whichever value is passed to it. Although it is true that the shader uses the matrix at the top of the stack, you are passing the matrix itself, and not the stack, so the shader will only see a matrix and have no knowledge of its origin as being from the top of the stack. You could conceivably use a non-stack data structure, and pass the correct matrices to the shader programs, and your scene would be drawn correctly, according to the matrices you pass in. In old OpenGL, this binding is implicit when an object is drawn.
+
+### Z-Buffer
+- Double-buffering: render into background, swap to foreground when finished
+- Z-buffer, for each pixel, only store closest fragment, replace if a new object is closer
+- <img width="610" height="344" alt="image" src="https://github.com/user-attachments/assets/29c171a0-3195-4502-9b5a-ab8a864b8e59" />
+
+### Animation
+- By updating the position in every draw call, will the speed of the animation be consistent? No. The speed at which the draw function is called is not consistent, even within a specific system.
+
+### Texture
+- Use images instead of polygons to represent detail
+- Added in a fragment shader
+- Each vertex must have a texture coordinate to apply texture mapping
+- Rasterizing will calculate a texture coordinate for each pixel
+- Can we conceivably change the shape of an object using a texture? Yes. We can change the location of every vertex using the vertex shader.
+
