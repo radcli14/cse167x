@@ -357,8 +357,9 @@ atten = \frac{1}{k_c + k_l d + k_q d^2}
 - To add per-vertex color to our shape in modern OpenGL, what must we provide in addition to draw code without color? We must change the client state to GL_COLOR_ARRAY and bind the appropriate buffer for per-vertex colors. A glUniform call will not operate per-vertex, and we do not need to "unbind" existing buffers.
 
 ### Matrix Stacks
-<img width="613" height="349" alt="image" src="https://github.com/user-attachments/assets/201d9a6a-6e68-4fde-9715-13aac5cbc203" />
+- <img width="613" height="349" alt="image" src="https://github.com/user-attachments/assets/201d9a6a-6e68-4fde-9715-13aac5cbc203" />
 - Push and pop matrix operations for the model view stack, push to the top of the stack, pop takes the matrix from the top of the stack and returns it
+- Generally in OpenGL convention, the last matrix operation written in code will be the first applied to the object
 - Changing the order of drawing will place an item (the floor) in front of items that were drawn before it, if Z-buffering not used
 - What do shaders know about matrix stacks? Matrices are much like any other shader variable. The data structure used to maintain and define the values in the host program is not important to the shader. The shader will only see whichever value is passed to it. Although it is true that the shader uses the matrix at the top of the stack, you are passing the matrix itself, and not the stack, so the shader will only see a matrix and have no knowledge of its origin as being from the top of the stack. You could conceivably use a non-stack data structure, and pass the correct matrices to the shader programs, and your scene would be drawn correctly, according to the matrices you pass in. In old OpenGL, this binding is implicit when an object is drawn.
 
@@ -376,4 +377,11 @@ atten = \frac{1}{k_c + k_l d + k_q d^2}
 - Each vertex must have a texture coordinate to apply texture mapping
 - Rasterizing will calculate a texture coordinate for each pixel
 - Can we conceivably change the shape of an object using a texture? Yes. We can change the location of every vertex using the vertex shader.
+
+### Homework 2
+- `Transform.cpp`: This is similar to the Transform.cpp file in HW1, but now we add code stubs for translations, scales, and perspective projection.
+- `readfile.cpp`: This file is for reading the input file (the parser structure is in place, but you need to deal with various other aspects).
+- `display.cpp`: This file is for displaying the scene.
+- `shaders/light.frag.glsl`: This file is for the actual fragment shader.
+
 
