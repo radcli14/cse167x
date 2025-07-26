@@ -9,6 +9,7 @@
 #endif
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <string>
 
 // glm provides vector, matrix classes like glsl
 // Typedefs to make code more readable 
@@ -33,5 +34,7 @@ public:
         static mat4 scale(const float &sx, const float &sy, const float &sz) ; 
         static mat4 translate(const float &tx, const float &ty, const float &tz);
         static vec3 upvector(const vec3 &up, const vec3 &zvec) ; 
+
+		static void printmat4(std::string name, mat4 matrix);
 };
 

@@ -5,6 +5,7 @@
 // See FAQ for more details or if you're having problems.
 
 #include "Transform.h"
+#include <iostream>
 
 mat3 identity3 = mat3(1.0f); // 3x3 identity matrix
 
@@ -92,18 +93,23 @@ mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFar)
   ret[3][2] = -1.0f;
   ret[3][3] = 0.0f;
   
+  //printmat4("Perspective", ret);
+
   return ret;
 }
 
 mat4 Transform::scale(const float &sx, const float &sy, const float &sz) 
 {
   // Initialize the returned matrix as an identity
-  mat4 ret = mat4(1.0f);
+  mat4 ret;
+  ret = mat4(1.0f);
 
-  // Add the scale vector in the fourth row
-  ret[3][0] = sx;
-  ret[3][1] = sy;
-  ret[3][2] = sz;
+  // Add the scale vector along the diagonal
+  ret[0][0] = sx;
+  ret[1][1] = sy;
+  ret[2][2] = sz;
+
+  //printmat4("Scale", ret);
 
   return ret;
 }
@@ -111,14 +117,29 @@ mat4 Transform::scale(const float &sx, const float &sy, const float &sz)
 mat4 Transform::translate(const float &tx, const float &ty, const float &tz) 
 {
   // Initialize the returned matrix as an identity
-  mat4 ret = mat4(1.0f);
+  mat4 ret;
+  ret = mat4(1.0f);
 
   // Add the translation vector in the fourth column
   ret[0][3] = tx;
   ret[1][3] = ty;
   ret[2][3] = tz;
 
+  //printmat4("Translate", ret);
+
   return ret;
+}
+
+// Utility to print the 4x4 matrix for debugging
+void Transform::printmat4(std::string name, mat4 matrix)
+{
+  std::cout << name << "\n";
+  for (int i=0; i<4; i++) {
+    for (int j=0; j<4; j++) {
+      std::cout << "       " << matrix[i][j];
+    }
+    std::cout << "\n";
+  }
 }
 
 // To normalize the up direction and construct a coordinate frame.  
