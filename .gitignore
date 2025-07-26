@@ -1,3 +1,8 @@
 * 2.*
 * 2
+*.o
+*.zip
+*/glm-0.9.7.1/
+*/mytest3
+*/transforms
 
