@@ -43,7 +43,18 @@ void main (void)
         // A key part is implementation of the fragment shader
 
         // Color all pixels black for now, remove this in your implementation!
-        finalcolor = vec4(0.0f, 0.0f, 0.0f, 1.0f); 
+        //finalcolor = vec4(0.0f, 0.0f, 0.0f, 1.0f); 
+
+        // EJR: make it red
+        finalcolor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+
+        //finalcolor = ambient + emission;
+        //finalcolor = lightcolor[0];
+
+        //for (int i=0; i<numused; i++) { 
+            // Add lights
+        //    finalcolor += lightcolor[i];
+        //}
 
         fragColor = finalcolor; 
     } else {
