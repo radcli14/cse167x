@@ -89,11 +89,12 @@ mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFar)
   ret[0][0] = d / aspect;
   ret[1][1] = d;
   ret[2][2] = A;
-  ret[2][3] = B;
-  ret[3][2] = -1.0f;
+  ret[3][2] = B;
+  ret[2][3] = -1.0f;
   ret[3][3] = 0.0f;
   
-  //printmat4("Perspective", ret);
+  //printmat4("Perspective (mine)", ret);
+  //printmat4("Perspective (glm)", glm::perspective(fovy, aspect, zNear, zFar));
 
   return ret;
 }
@@ -121,11 +122,12 @@ mat4 Transform::translate(const float &tx, const float &ty, const float &tz)
   ret = mat4(1.0f);
 
   // Add the translation vector in the fourth column
-  ret[0][3] = tx;
-  ret[1][3] = ty;
-  ret[2][3] = tz;
+  ret[3][0] = tx;
+  ret[3][1] = ty;
+  ret[3][2] = tz;
 
-  //printmat4("Translate", ret);
+  //printmat4("Translate (mine)", ret);
+  //printmat4("Translate (glm)", glm::translate(tx, ty, tz));
 
   return ret;
 }

@@ -81,7 +81,7 @@ void display()
   // You need to use scale, translate and modelview to 
   // set up the net transformation matrix for the objects.  
   // Account for GLM issues, matrix order, etc.  
-
+  transf = modelview * sc * tr;
   
   // The object draw functions will need to further modify the top of the stack,
   // so assign whatever transformation matrix you intend to work with to modelview
