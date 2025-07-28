@@ -78,7 +78,7 @@ mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFar)
 {
   mat4 ret;
   // Calculate the d term that is the cotangent of the half field-of-view
-  float theta = fovy / 2.0f;
+  float theta = fovy * pi / 180.0f / 2.0f;  // By convention used in main.cpp, I need to convert to radians here
   float d = 1.0f / tan(theta);
 
   // Calculate the A and B values for the projection of the Z-component

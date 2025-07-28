@@ -51,9 +51,6 @@ void main (void)
     if (enablelighting) {       
         vec4 finalcolor; 
 
-        // YOUR CODE FOR HW 2 HERE
-        // A key part is implementation of the fragment shader
-
         // Get direction vector from the eye to the current vertex position, in modelview coordinate
         const vec3 eyepos = vec3(0, 0, 0);
         vec4 _vertexpos = modelview * myvertex;
@@ -70,7 +67,7 @@ void main (void)
 
         // Add lights
         for (int n=0; n<numused; n++) { 
-            // Get direction
+            // Get direction vector from the light to the vertex
             vec3 direction;
             if (lightposn[n].w == 0) {
                 // Directional light, direction only dependent on light position, independent of vertex

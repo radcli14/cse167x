@@ -175,6 +175,14 @@ void readfile(const char* filename)
             // to set up correctly. 
             // Set eyeinit upinit center fovy in variables.h 
 
+            // Unpack the values for camera positioning and look vectors
+            eyeinit = vec3(values[0], values[1], values[2]);
+            center = vec3(values[3], values[4], values[5]);
+            upinit = normalize(vec3(values[6], values[7], values[8]));
+            fovy = values[9];
+
+            // Make sure the up vector is consistent with the look direction
+            upinit = Transform::upvector(upinit, center - eyeinit);
           }
         }
 
@@ -223,7 +231,8 @@ void readfile(const char* filename)
             // Think about how the transformation stack is affected
             // You might want to use helper functions on top of file. 
             // Also keep in mind what order your matrix is!
-
+            *(&transfstack.top()) = transfstack.top() * Transform::translate(values[0], values[1], values[2]);
+          
           }
         }
         else if (cmd == "scale") {
@@ -234,7 +243,8 @@ void readfile(const char* filename)
             // Think about how the transformation stack is affected
             // You might want to use helper functions on top of file.  
             // Also keep in mind what order your matrix is!
-
+            *(&transfstack.top()) = transfstack.top() * Transform::scale(values[0], values[1], values[2]);
+          
           }
         }
         else if (cmd == "rotate") {
@@ -247,7 +257,8 @@ void readfile(const char* filename)
             // See how the stack is affected, as above.  
             // Note that rotate returns a mat3. 
             // Also keep in mind what order your matrix is!
-
+            vec3 axis = vec3(values[0], values[1], values[2]);
+            *(&transfstack.top()) = transfstack.top() * mat4(Transform::rotate(values[3], axis));
           }
         }
 
