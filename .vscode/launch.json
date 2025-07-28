@@ -1,0 +1,21 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Build and Run transforms",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/hw2-linux_osx/transforms",
+            "args": ["scene.txt"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/hw2-linux_osx",
+            "preLaunchTask": "build transforms",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }
+    ]
+}

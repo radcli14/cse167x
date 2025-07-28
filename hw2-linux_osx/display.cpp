@@ -56,6 +56,10 @@ void display()
   }
   glUniformMatrix4fv(modelviewPos, 1, GL_FALSE, &modelview[0][0]);
 
+// DEBUG
+//Transform::printmat4("My lookAt", Transform::lookAt(eye,center,up));
+//Transform::printmat4("GLM lookAt", glm::lookAt(eye,center,up));
+
   // Lights are transformed by current modelview matrix. 
   // The shader can't do this globally. 
   // So we need to do so manually.  
@@ -67,6 +71,23 @@ void display()
     // glUniform4fv() and similar functions will be useful. See FAQ for help with these functions.
     // The lightransf[] array in variables.h and transformvec() might also be useful here.
     // Remember that light positions must be transformed by modelview.  
+    for (int n=0; n<numused; ++n) {
+      // Get the input array by indexing the original lightposn
+      GLfloat input[4], transformed[4];
+      for (int i = 0; i < 4; ++i) {
+          input[i] = lightposn[4 * n + i];
+      }
+
+      // Obtain the transformed array, and build it into the lightransf array
+      transformvec(input, transformed);
+      for (int i = 0; i < 4; ++i) {
+          lightransf[4 * n + i] = transformed[i];
+      }
+    }
+    
+    glUniform1i(numusedcol, numused);
+    glUniform4fv(lightpos, numused, lightransf);
+    glUniform4fv(lightcol, numused, lightcolor);
 
   } else {
     glUniform1i(enablelighting,false); 
@@ -86,7 +107,7 @@ void display()
   // The object draw functions will need to further modify the top of the stack,
   // so assign whatever transformation matrix you intend to work with to modelview
   // rather than use a uniform variable for that.
-  modelview = transf;
+  //modelview = transf;
 
   for (int i = 0 ; i < numobjects ; i++) {
     object* obj = &(objects[i]); // Grabs an object struct.
@@ -95,7 +116,16 @@ void display()
     // Set up the object transformations 
     // And pass in the appropriate material properties
     // Again glUniform() related functions will be useful
+    transf = modelview * tr * sc * obj->transform;
+    glLoadMatrixf(&transf[0][0]);
+    
+    //glm::mat4 objModelView = modelview * obj->transform;
+    //glUniformMatrix4fv(modelviewPos, 1, GL_FALSE, &objModelView[0][0]);
 
+    glUniform4fv(ambientcol, 1, obj->ambient);
+    glUniform4fv(diffusecol, 1, obj->diffuse);
+    glUniform4fv(specularcol, 1, obj->specular);
+    glUniform1fv(shininesscol, 1, &obj->shininess);
 
     // Actually draw the object
     // We provide the actual drawing functions for you.  

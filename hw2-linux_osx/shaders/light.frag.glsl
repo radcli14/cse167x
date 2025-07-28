@@ -34,6 +34,18 @@ uniform vec4 specular;
 uniform vec4 emission; 
 uniform float shininess; 
 
+vec4 ComputeLight (vec3 direction, vec4 lightcolor, vec3 normal, vec3 halfvec, vec4 mydiffuse, vec4 myspecular, float myshininess) {
+
+    float nDotL = dot(normal, direction)  ;         
+    vec4 lambert = mydiffuse * lightcolor * max (nDotL, 0.0) ;  
+
+    float nDotH = dot(normal, halfvec) ; 
+    vec4 phong = myspecular * lightcolor * pow (max(nDotH, 0.0), myshininess) ; 
+
+    vec4 retval = lambert + phong ; 
+    return retval ;
+}       
+
 void main (void) 
 {       
     if (enablelighting) {       
@@ -42,18 +54,38 @@ void main (void)
         // YOUR CODE FOR HW 2 HERE
         // A key part is implementation of the fragment shader
 
-        // Color all pixels black for now, remove this in your implementation!
-        finalcolor = vec4(0.0f, 0.0f, 0.0f, 1.0f); 
+        // Get direction vector from the eye to the current vertex position, in modelview coordinate
+        const vec3 eyepos = vec3(0, 0, 0);
+        vec4 _vertexpos = modelview * myvertex;
+        vec3 vertexpos = _vertexpos.xyz / _vertexpos.w; // Dehomogenize
+        vec3 eyedirection = normalize(eyepos - vertexpos);
 
-        // EJR: make it red
-        //finalcolor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+        // Get normal direction, in modelview coordinate
+        mat4 inverse_matrix = inverse(modelview);
+        mat4 inverse_transpose_matrix = transpose(modelview);
+        vec4 _normal = inverse_transpose_matrix * vec4(mynormal, 0);
+        vec3 normal = normalize(_normal.xyz);
 
         finalcolor = ambient + emission;
-        //finalcolor = lightcolor[0];
 
-        for (int i=0; i<numused; i++) { 
-            // Add lights
-            finalcolor += lightcolor[i];
+        // Add lights
+        for (int n=0; n<numused; n++) { 
+            // Get direction
+            vec3 direction;
+            if (lightposn[n].w == 0) {
+                // Directional light, direction only dependent on light position, independent of vertex
+                direction = normalize(lightposn[n].xyz);
+            } else {
+                // Point light, direction dependent on vector from light to vertex
+                vec3 lightpos = lightposn[n].xyz / lightposn[n].w;
+                direction = normalize(lightpos - vertexpos);
+            }
+
+            // Get halfvec
+            vec3 halfvec = normalize(direction + eyedirection);
+
+            // Use ComputeLight function to get the lighting contribution
+            finalcolor += ComputeLight(direction, lightcolor[n], normal, halfvec, diffuse, specular, shininess);
         }
 
         fragColor = finalcolor; 
