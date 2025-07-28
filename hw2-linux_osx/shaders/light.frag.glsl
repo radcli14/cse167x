@@ -59,7 +59,7 @@ void main (void)
 
         // Get normal direction, in modelview coordinate
         mat4 inverse_matrix = inverse(modelview);
-        mat4 inverse_transpose_matrix = transpose(modelview);
+        mat4 inverse_transpose_matrix = transpose(inverse_matrix);
         vec4 _normal = inverse_transpose_matrix * vec4(mynormal, 0);
         vec3 normal = normalize(_normal.xyz);
 
