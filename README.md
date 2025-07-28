@@ -1,5 +1,8 @@
 # cse167x
-UC San DiegoX Computer Graphics
+_UC San DiegoX Computer Graphics_
+
+This repository contains my notes that I took while watching the videos for this course on edX.
+The code itself are my own solutions to the four homework problems.
 
 ## Lecture 1 (Course Overview)
 
@@ -384,4 +387,8 @@ atten = \frac{1}{k_c + k_l d + k_q d^2}
 - `display.cpp`: This file is for displaying the scene.
 - `shaders/light.frag.glsl`: This file is for the actual fragment shader.
 
-
+The final output of homework 2 is a set of several images depicting the teapot, a floor, and four columns.
+Creating the transforms is straightforward, and similar to the earlier homework, the one "gotcha" being to make sure to convert to radians inside the perspective function, meaning its a slightly different implementation than what GLM provides (you'll see in `main.cpp` that they convert as part of the GLM function call, but not the one we create).
+Creating the fragment shader is somewhat complicated as you need to obtain vectors and matrices, and perform math, inside of the GLSL code.
+The `readfile.cpp` and `display.cpp` need updating to make sure the files get parsed properly, particularly transforms, and these get applied when the render is created.
+![Homework 2 Results](hw2-linux_osx/results/demo.txt.input.txt.000.png)
