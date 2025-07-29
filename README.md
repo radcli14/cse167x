@@ -392,3 +392,43 @@ Creating the transforms is straightforward, and similar to the earlier homework,
 Creating the fragment shader is somewhat complicated as you need to obtain vectors and matrices, and perform math, inside of the GLSL code.
 The `readfile.cpp` and `display.cpp` need updating to make sure the files get parsed properly, particularly transforms, and these get applied when the render is created.
 ![Homework 2 Results](hw2-linux_osx/results/demo.txt.input.txt.000.png)
+
+## Lecture 9 Raytracing I
+
+### Background and History
+- For realism, need shadows, reflections, transparency, interreflections, complex illumination, and realistic materials
+- Raytracing is pixel-by-pixel not object-by-object
+- Whitted in 1980 demonstrated recursive raytracing
+- Conceptually simple, but details of `RayThruPixel`, `Intersect`, and `FindColor` are complicated
+- <img width="611" height="343" alt="image" src="https://github.com/user-attachments/assets/0bb263a7-aa25-43a5-911d-42ecab5dbd2e" />
+- Raycasting can have a benefit over rasterization in large scenes where there are many objects, but some may not cover any pixels in the scene
+
+### Shadows and Reflections
+- Due to numerical issues, an object may falsely shadow itself, correction applied by temporarily moving slightly toward the light source
+- <img width="612" height="345" alt="image" src="https://github.com/user-attachments/assets/2be859f3-5cbf-4164-a3d3-f5b44db9c083" />
+- Color of reflected ray requires an additional ray trace from the point of the initial ray hit
+- Can we use our recursive shadow algorithm in a rasterizer, such as OpenGL? Shadows can be represented in an OpenGL rasterizer, but it is difficult to use a recursive algorithm to do so. For a recursive algorithm to work, we must call a rasterization step using the results of a previous rasterization step. Our recursive shadow algorithm uses the intersection of an object as the origin of a new ray. You could conceivably write a rasterizer that will operate on every previous pixel value, but this will consider all objects per pixel, resulting in a similar complexity to ray tracing. You could also write a ray tracer in a fragment shader, to compute if a pixel is in shadow or not, but this is also the same speed as a normal ray tracer.
+
+### Intersections
+- There are optimized algorithms for primitives (triangles, cubes, spheres, etc)
+- Rays contain both an origin and a direction
+- Sphere intersection determined by substituting the ray into the sphere equation, solve for roots, if two real roots, then choose smaller (closer), if two roots are the same then you are on a tangent, if a single root then ray is inside the sphere, if complex then there is no intersection
+- Triangle intersections involve first finding the intersection with the plane defined by the triangle, then detecting whether that point is inside the triangle
+- Objects can be evaluated in a raytracing algorithm without vertices so long as there is an intersection formula
+ 
+### Optimizations
+- Most optimization derives from calculating fewer intersections
+- Bounding boxes, can include object or not based upon whether it is inside or outside a bounding box
+- Grid structures, retain a pointer for each object specifying whether a portion of it is inside a grid cell, only check for intersection if a ray passes through a grid cell where that pointer is true, and only check each object once in the case that it is inside multiple cells
+- <img width="610" height="343" alt="image" src="https://github.com/user-attachments/assets/9b11f5df-60be-4e2b-86bc-b8805d575729" />
+
+## Lecture 10 Raytracing II
+
+### Camera Ray Casting
+- Subject of `RayThruPixel` function
+- Generally keep objects in world coordinates, find direction of each ray
+- <img width="609" height="347" alt="image" src="https://github.com/user-attachments/assets/dc80d0d1-1654-4beb-8611-2fc2db6f45d5" />
+- Standard pixel naming/indexing convention have vertical distance measured from the top
+
+
+
