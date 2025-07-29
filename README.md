@@ -430,5 +430,30 @@ The `readfile.cpp` and `display.cpp` need updating to make sure the files get pa
 - <img width="609" height="347" alt="image" src="https://github.com/user-attachments/assets/dc80d0d1-1654-4beb-8611-2fc2db6f45d5" />
 - Standard pixel naming/indexing convention have vertical distance measured from the top
 
+### Ray-object Intersections
+- Subject of `Intersect` function
+- Ray-sphere intersection, check the discriminant of the intersection equation, if its negative, don't calculate roots, there is no intersection
+- For sphere, normal of the intersection is simply the direction from the center to the intersection point
+- Ray-triangle intersection, first find normal of the plane, plane equation is such that the dot product of any test point with the normal minus the dot product of a known point with the normal is equal to zero
+- Plug in the ray to the plane equation, solve linear equation for t
+- <img width="612" height="346" alt="image" src="https://github.com/user-attachments/assets/53bdf25b-1021-4f61-92f4-65913a19b4f1" />
+- For general polygons, we can detect if we are inside or outside by shooting a ray at the polygon, if it intersects and even number of times we are outside, an odd number of times we are inside
+- For triangles, we detect inside using Barycentric coordinates, where a point is a combination of three weights multiplied by the intersection points, for a ray to be inside the triangle, the weights must be in the range 0<weight<1, sum of weights = 1
+
+### Lighting Calculations
+- Subject of `FindColor` function
+- Shoot a ray to the object, then shoot rays to the light sources
+- <img width="614" height="349" alt="image" src="https://github.com/user-attachments/assets/c02712f4-facc-435b-9a44-1c7712c3153b" />
+- Visibility/shadowing is new for raytracing
+- If you were to ignore visibility and shadowing, lighting in a raytracer is essentially equivalent to a fragment shader in OpenGL
+
+### Recursive Raytracing
+- New terms, recursive specularity of mirror reflection and transmission
+- <img width="612" height="344" alt="image" src="https://github.com/user-attachments/assets/3805286a-7bf3-47dc-98d1-a61b35409da0" />
+- <img width="615" height="348" alt="image" src="https://github.com/user-attachments/assets/919fc210-1b81-4060-914e-b57bca536d49" />
+- Area lights are handled by splitting into nxn point lights, randomly jitter to avoid obvious quantization of quantity of visible cells
+- 
+
+
 
 
