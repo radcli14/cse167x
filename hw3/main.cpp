@@ -10,6 +10,8 @@
 #include <deque>
 #include <stack>
 #include <FreeImage.h>
+#include "readfile.h"
+#include "variables.h"
 
 using namespace std; 
 
@@ -22,9 +24,17 @@ int main(int argc, char* argv[]) {
 
   FreeImage_Initialise();
   
-  // TODO: Parse the scene file
+  // Parse the scene file
   string scenefile = argv[1];
   cout << "Parsing scene file: " << scenefile << endl;
+  
+  try {
+    readfile(scenefile.c_str());
+  } catch (int e) {
+    cerr << "Error parsing scene file: " << e << endl;
+    FreeImage_DeInitialise();
+    exit(-1);
+  }
   
   // TODO: Implement ray casting and rendering
   cout << "Ray casting and rendering not yet implemented" << endl;
