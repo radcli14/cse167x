@@ -77,7 +77,9 @@ Ray RayThruPixel(const Camera& cam, int i, int j, int width, int height) {
 
 Intersection Intersect(const Ray& ray, const Scene& scene) {
     Intersection hit;
+    hit.ray = ray;  // Store the ray for access to camera/view direction
     float closest_t = INFINITY;
+    float epsilon = 0.000001f; // Small value to avoid self-intersection
 
     // Loop over all spheres
     for (size_t i = 0; i < scene.spheres.size(); ++i) {
@@ -103,7 +105,7 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
             // Use the closer intersection point (smaller t value)
             float t = (t1 > 0.0f) ? t1 : t2;
             
-            if (t > 0.0f && t < closest_t) {
+            if (t > epsilon && t < closest_t) {
                 closest_t = t;
                 hit.hit = true;
                 hit.t = t;
@@ -129,7 +131,7 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
         if (fabs(denom) < 1e-6f) continue; // Parallel, no intersection
 
         float t = glm::dot(n, v0 - ray.origin) / denom;
-        if (t < 0.0f) continue; // Intersection behind ray origin
+        if (t < epsilon) continue; // Intersection behind ray origin
         if (t > closest_t) continue; // Intersection is behind the closest intersection
 
         glm::vec3 p = ray.origin + t * ray.direction;
@@ -162,7 +164,70 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
 
 glm::vec3 FindColor(const Intersection& hit, const Scene& scene) {
     if (hit.hit) {
-        return hit.material.ambient + hit.material.emission + hit.material.diffuse;
+        float epsilon = 0.000001f; // Small value to avoid self-intersection
+        
+        // Start with ambient and emission
+        glm::vec3 color = hit.material.ambient + hit.material.emission;
+        
+        // Loop through all lights
+        for (size_t i = 0; i < scene.lights.size(); ++i) {
+            const Light& light = scene.lights[i];
+            
+            // Calculate light direction vector and distance
+            glm::vec3 lightDir;
+            float attenuation = 1.0f;
+            float distanceToLight;
+            if (light.isDirectional) {
+                // Directional light: direction is constant, no distance attenuation
+                lightDir = glm::normalize(light.direction);
+                distanceToLight = INFINITY; // No distance attenuation for directional lights
+            } else {
+                // Point light: direction from hit point to light position
+                lightDir = glm::normalize(light.position - hit.point);
+                distanceToLight = glm::length(light.position - hit.point);
+                attenuation = 1.0f / (light.attenuation[0] + light.attenuation[1] * distanceToLight + light.attenuation[2] * (distanceToLight * distanceToLight));
+            }
+            
+            // Check if light is blocked by an object, if it is, it is shadowed, so don't add that light
+            // Offset ray origin slightly to avoid self-intersection
+            glm::vec3 shadowRayOrigin = hit.point + epsilon * hit.normal;
+            Ray lightRay = Ray(shadowRayOrigin, lightDir);
+            Intersection lightHit = Intersect(lightRay, scene);
+            
+            // Check if shadow ray hits something closer than the light
+            if (lightHit.hit && lightHit.t < distanceToLight) {
+                continue; // Light is blocked by an object
+            }
+            
+            // Calculate view direction using the ray direction from the intersection
+            // The ray direction points from camera to hit point, so we negate it for view direction
+            glm::vec3 viewDir = -hit.ray.direction; // View direction is opposite of ray direction
+            
+            // Calculate half vector for specular calculations
+            // Half vector is halfway between view direction and light direction
+            glm::vec3 halfVector = glm::normalize(viewDir + lightDir);
+            
+            // Calculate diffuse lighting
+            float NdotL = glm::dot(hit.normal, lightDir);
+            if (NdotL > 0.0f) {
+                color += attenuation * light.color * hit.material.diffuse * NdotL;
+            }
+            
+            // Calculate specular lighting
+            float NdotH = glm::dot(hit.normal, halfVector);
+            if (NdotH > 0.0f) {
+                color += attenuation * light.color * hit.material.specular * pow(NdotH, hit.material.shininess);
+            }
+
+            // For now, just print the computed vectors for debugging
+            std::cout << "Light " << i << ": dir=(" << lightDir.x << "," << lightDir.y << "," << lightDir.z 
+                      << ") dist=" << distanceToLight 
+                      << " view=(" << viewDir.x << "," << viewDir.y << "," << viewDir.z << ")"
+                      << " half=(" << halfVector.x << "," << halfVector.y << "," << halfVector.z << ")" << std::endl;
+        }
+        
+        // Return the computed color
+        return color;
     } else {
         return glm::vec3(0.0f, 0.0f, 0.0f); // Black for misses
     }

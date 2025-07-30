@@ -27,6 +27,7 @@ struct Intersection {
     glm::vec3 point;
     glm::vec3 normal;
     Material material;
+    Ray ray;  // Store the ray for access to camera/view direction
     
     Intersection() : hit(false), t(INFINITY), point(0.0f), normal(0.0f, 1.0f, 0.0f) {}
 };
