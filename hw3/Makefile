@@ -15,13 +15,15 @@ endif
 
 RM = /bin/rm -f 
 all: raycast
-raycast: main.o readfile.o variables.o
-	$(CC) $(CFLAGS) -o raycast main.o readfile.o variables.o $(INCFLAGS) $(LDFLAGS) 
-main.o: main.cpp readfile.h variables.h
+raycast: main.o readfile.o variables.o raytrace.o
+	$(CC) $(CFLAGS) -o raycast main.o readfile.o variables.o raytrace.o $(INCFLAGS) $(LDFLAGS) 
+main.o: main.cpp readfile.h variables.h raytrace.h
 	$(CC) $(CFLAGS) $(INCFLAGS) -c main.cpp
 readfile.o: readfile.cpp readfile.h variables.h
 	$(CC) $(CFLAGS) $(INCFLAGS) -c readfile.cpp
 variables.o: variables.cpp variables.h
 	$(CC) $(CFLAGS) $(INCFLAGS) -c variables.cpp
+raytrace.o: raytrace.cpp raytrace.h
+	$(CC) $(CFLAGS) $(INCFLAGS) -c raytrace.cpp
 clean: 
 	$(RM) *.o raycast *.png 

@@ -12,6 +12,7 @@
 #include <FreeImage.h>
 #include "readfile.h"
 #include "variables.h"
+#include "raytrace.h"
 
 using namespace std; 
 
@@ -36,8 +37,25 @@ int main(int argc, char* argv[]) {
     exit(-1);
   }
   
-  // TODO: Implement ray casting and rendering
-  cout << "Ray casting and rendering not yet implemented" << endl;
+  // Create Scene from parsed data
+  Scene scene;
+  scene.spheres = spheres;
+  scene.triangles = triangles;
+  scene.lights = lights;
+  scene.globalAmbient = currentMaterial; // Use current material as global ambient
+  
+  cout << "Created scene with:" << endl;
+  cout << "  - " << scene.spheres.size() << " spheres" << endl;
+  cout << "  - " << scene.triangles.size() << " triangles" << endl;
+  cout << "  - " << scene.lights.size() << " lights" << endl;
+  
+  // Perform ray tracing
+  cout << "Starting ray tracing..." << endl;
+  Image image = Raytrace(camera, scene, imageWidth, imageHeight);
+  
+  // Save the image
+  cout << "Saving image to: " << outputFilename << endl;
+  image.save(outputFilename);
   
   FreeImage_DeInitialise();
   return 0;
