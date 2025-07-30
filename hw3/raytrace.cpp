@@ -99,6 +99,7 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
 
         float t = glm::dot(n, v0 - ray.origin) / denom;
         if (t < 0.0f) continue; // Intersection behind ray origin
+        if (t > closest_t) continue; // Intersection is behind the closest intersection
 
         glm::vec3 p = ray.origin + t * ray.direction;
 
@@ -117,14 +118,12 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
         float w = (d00 * d21 - d01 * d20) / denom_bary;
         float u = 1.0f - v - w;
         if (u >= 0.0f && v >= 0.0f && w >= 0.0f && u <= 1.0f && v <= 1.0f && w <= 1.0f) {
-            if (t < closest_t) {
-                closest_t = t;
-                hit.hit = true;
-                hit.t = t;
-                hit.point = p;
-                hit.normal = n;
-                hit.material = tri.material;
-            }
+            closest_t = t;
+            hit.hit = true;
+            hit.t = t;
+            hit.point = p;
+            hit.normal = n;
+            hit.material = tri.material;
         }
     }
     return hit;
