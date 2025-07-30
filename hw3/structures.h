@@ -19,7 +19,21 @@ struct Camera {
     glm::vec3 up;
     float fov;
     
-    Camera() : lookfrom(0,0,5), lookat(0,0,0), up(0,1,0), fov(30.0f) {}
+    // Camera frame (computed as needed)
+    mutable glm::vec3 u, v, w;
+    mutable bool frameInitialized;
+
+    Camera() : lookfrom(0,0,5), lookat(0,0,0), up(0,1,0), fov(30.0f),
+        frameInitialized(false) {}
+
+    void updateFrame() const {
+        if (!frameInitialized) {
+            w = glm::normalize(lookfrom - lookat); // camera forward (-z)
+            u = glm::normalize(glm::cross(glm::normalize(up), w)); // right (x)
+            v = glm::cross(w, u); // up (y)
+            frameInitialized = true;
+        }
+    }
 };
 
 struct Light {

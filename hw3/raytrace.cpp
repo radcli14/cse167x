@@ -29,14 +29,21 @@ void Image::save(const std::string& filename) {
 
 // Ray tracing function implementations
 Ray RayThruPixel(const Camera& cam, int i, int j, int width, int height) {
-    // TODO: Implement ray generation through pixel (i,j)
-    // This should create a ray from the camera through the specified pixel
-    
-    // Placeholder implementation
-    glm::vec3 origin = cam.lookfrom;
-    glm::vec3 direction = glm::normalize(cam.lookat - cam.lookfrom);
-    
-    return Ray(origin, direction);
+    // Ensure camera frame is up to date
+    cam.updateFrame();
+
+    // Image plane size
+    float aspect = static_cast<float>(width) / static_cast<float>(height);
+    float fovyRad = glm::radians(cam.fov);
+    float fovxRad = aspect * fovyRad;
+
+    // Horizontal alpha and vertical beta from canonical viewing slide
+    float alpha = tan(0.5f * fovxRad) * (j - 0.5f * width) / (0.5f * width);
+    float beta = tan(0.5f * fovyRad) * (0.5f * height - i) / (0.5f * height);
+
+    // Ray direction in world space
+    glm::vec3 dir = glm::normalize(alpha * cam.u + beta * cam.v - cam.w);
+    return Ray(cam.lookfrom, dir);
 }
 
 Intersection Intersect(const Ray& ray, const Scene& scene) {
