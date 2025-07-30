@@ -79,10 +79,41 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
     Intersection hit;
     float closest_t = INFINITY;
 
-    // Loop over all spheres (not implemented yet)
+    // Loop over all spheres
     for (size_t i = 0; i < scene.spheres.size(); ++i) {
-        // Sphere intersection logic will go here
+        const Sphere& sphere = scene.spheres[i];
+        
+        // Ray-sphere intersection using quadratic formula
+        // Ray: P(t) = ray.origin + t * ray.direction
+        // Sphere: |P - sphere.center|^2 = sphere.radius^2
+        // Substitute ray equation into sphere equation and solve for t
+        
+        glm::vec3 oc = ray.origin - sphere.center;
+        float a = glm::dot(ray.direction, ray.direction);
+        float b = 2.0f * glm::dot(oc, ray.direction);
+        float c = glm::dot(oc, oc) - sphere.radius * sphere.radius;
+        
+        float discriminant = b * b - 4 * a * c;
+        
+        if (discriminant > 0) {
+            // Two intersection points
+            float t1 = (-b - sqrt(discriminant)) / (2.0f * a);
+            float t2 = (-b + sqrt(discriminant)) / (2.0f * a);
+            
+            // Use the closer intersection point (smaller t value)
+            float t = (t1 > 0.0f) ? t1 : t2;
+            
+            if (t > 0.0f && t < closest_t) {
+                closest_t = t;
+                hit.hit = true;
+                hit.t = t;
+                hit.point = ray.origin + t * ray.direction;
+                hit.normal = glm::normalize(hit.point - sphere.center);
+                hit.material = sphere.material;
+            }
+        }
     }
+    
     // Loop over all triangles
     for (size_t i = 0; i < scene.triangles.size(); ++i) {
         const Triangle& tri = scene.triangles[i];
@@ -130,9 +161,8 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
 }
 
 glm::vec3 FindColor(const Intersection& hit, const Scene& scene) {
-    // Simple red/black coloring based on hit status
     if (hit.hit) {
-        return glm::vec3(1.0f, 0.0f, 0.0f); // Red for hits
+        return hit.material.ambient + hit.material.emission + hit.material.diffuse;
     } else {
         return glm::vec3(0.0f, 0.0f, 0.0f); // Black for misses
     }
