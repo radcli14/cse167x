@@ -79,20 +79,25 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
     Intersection hit;
     hit.ray = ray;  // Store the ray for access to camera/view direction
     float closest_t = INFINITY;
-    float epsilon = 0.000001f; // Small value to avoid self-intersection
+    float epsilon = 0.0001f; // Small value to avoid self-intersection
 
     // Loop over all spheres
     for (size_t i = 0; i < scene.spheres.size(); ++i) {
         const Sphere& sphere = scene.spheres[i];
         
-        // Ray-sphere intersection using quadratic formula
-        // Ray: P(t) = ray.origin + t * ray.direction
+        // Transform ray to sphere's local coordinate system
+        glm::mat4 invTransform = glm::inverse(sphere.transform);
+        glm::vec3 localOrigin = glm::vec3(invTransform * glm::vec4(ray.origin, 1.0f));
+        glm::vec3 localDirection = glm::vec3(invTransform * glm::vec4(ray.direction, 0.0f));
+        
+        // Ray-sphere intersection using quadratic formula in local coordinates
+        // Ray: P(t) = localOrigin + t * localDirection
         // Sphere: |P - sphere.center|^2 = sphere.radius^2
         // Substitute ray equation into sphere equation and solve for t
         
-        glm::vec3 oc = ray.origin - sphere.center;
-        float a = glm::dot(ray.direction, ray.direction);
-        float b = 2.0f * glm::dot(oc, ray.direction);
+        glm::vec3 oc = localOrigin - sphere.center;
+        float a = glm::dot(localDirection, localDirection);
+        float b = 2.0f * glm::dot(oc, localDirection);
         float c = glm::dot(oc, oc) - sphere.radius * sphere.radius;
         
         float discriminant = b * b - 4 * a * c;
@@ -109,8 +114,16 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
                 closest_t = t;
                 hit.hit = true;
                 hit.t = t;
-                hit.point = ray.origin + t * ray.direction;
-                hit.normal = glm::normalize(hit.point - sphere.center);
+                
+                // Transform intersection point back to world coordinates
+                glm::vec3 localPoint = localOrigin + t * localDirection;
+                hit.point = glm::vec3(sphere.transform * glm::vec4(localPoint, 1.0f));
+                
+                // Transform normal back to world coordinates (transpose of inverse)
+                glm::vec3 localNormal = glm::normalize(localPoint - sphere.center);
+                glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(sphere.transform)));
+                hit.normal = glm::normalize(normalMatrix * localNormal);
+                
                 hit.material = sphere.material;
             }
         }
@@ -119,27 +132,33 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
     // Loop over all triangles
     for (size_t i = 0; i < scene.triangles.size(); ++i) {
         const Triangle& tri = scene.triangles[i];
-        // Get triangle vertices (assume global vertices vector)
+        
+        // Transform ray to triangle's local coordinate system
+        glm::mat4 invTransform = glm::inverse(tri.transform);
+        glm::vec3 localOrigin = glm::vec3(invTransform * glm::vec4(ray.origin, 1.0f));
+        glm::vec3 localDirection = glm::vec3(invTransform * glm::vec4(ray.direction, 0.0f));
+        
+        // Get triangle vertices in local coordinates
         extern std::vector<Vertex> vertices;
         const glm::vec3& v0 = vertices[tri.v1].position;
         const glm::vec3& v1 = vertices[tri.v2].position;
         const glm::vec3& v2 = vertices[tri.v3].position;
 
-        // Compute plane normal
+        // Compute plane normal in local coordinates
         glm::vec3 n = glm::normalize(glm::cross(v1 - v0, v2 - v0));
-        float denom = glm::dot(n, ray.direction);
+        float denom = glm::dot(n, localDirection);
         if (fabs(denom) < 1e-6f) continue; // Parallel, no intersection
 
-        float t = glm::dot(n, v0 - ray.origin) / denom;
+        float t = glm::dot(n, v0 - localOrigin) / denom;
         if (t < epsilon) continue; // Intersection behind ray origin
         if (t > closest_t) continue; // Intersection is behind the closest intersection
 
-        glm::vec3 p = ray.origin + t * ray.direction;
+        glm::vec3 localPoint = localOrigin + t * localDirection;
 
         // Barycentric coordinates
         glm::vec3 v0v1 = v1 - v0;
         glm::vec3 v0v2 = v2 - v0;
-        glm::vec3 v0p = p - v0;
+        glm::vec3 v0p = localPoint - v0;
         float d00 = glm::dot(v0v1, v0v1);
         float d01 = glm::dot(v0v1, v0v2);
         float d11 = glm::dot(v0v2, v0v2);
@@ -154,8 +173,14 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
             closest_t = t;
             hit.hit = true;
             hit.t = t;
-            hit.point = p;
-            hit.normal = n;
+            
+            // Transform intersection point back to world coordinates
+            hit.point = glm::vec3(tri.transform * glm::vec4(localPoint, 1.0f));
+            
+            // Transform normal back to world coordinates (transpose of inverse)
+            glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(tri.transform)));
+            hit.normal = glm::normalize(normalMatrix * n);
+            
             hit.material = tri.material;
         }
     }
@@ -164,7 +189,7 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
 
 glm::vec3 FindColor(const Intersection& hit, const Scene& scene) {
     if (hit.hit) {
-        float epsilon = 0.000001f; // Small value to avoid self-intersection
+        float epsilon = 0.0001f; // Small value to avoid self-intersection
         
         // Start with ambient and emission
         glm::vec3 color = hit.material.ambient + hit.material.emission;
@@ -218,12 +243,6 @@ glm::vec3 FindColor(const Intersection& hit, const Scene& scene) {
             if (NdotH > 0.0f) {
                 color += attenuation * light.color * hit.material.specular * pow(NdotH, hit.material.shininess);
             }
-
-            // For now, just print the computed vectors for debugging
-            std::cout << "Light " << i << ": dir=(" << lightDir.x << "," << lightDir.y << "," << lightDir.z 
-                      << ") dist=" << distanceToLight 
-                      << " view=(" << viewDir.x << "," << viewDir.y << "," << viewDir.z << ")"
-                      << " half=(" << halfVector.x << "," << halfVector.y << "," << halfVector.z << ")" << std::endl;
         }
         
         // Return the computed color
