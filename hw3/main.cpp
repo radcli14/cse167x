@@ -53,9 +53,13 @@ int main(int argc, char* argv[]) {
   cout << "Starting ray tracing..." << endl;
   Image image = Raytrace(camera, scene, imageWidth, imageHeight);
   
-  // Save the image
+  // Save the image to file
   cout << "Saving image to: " << outputFilename << endl;
   image.save(outputFilename);
+  
+  // Display the result in a GLUT window
+  cout << "Displaying ray tracing result..." << endl;
+  ShowRaytraceWindow(image, imageWidth, imageHeight);
   
   FreeImage_DeInitialise();
   return 0;
