@@ -1,8 +1,12 @@
 #include "raytrace.h"
+#include "variables.h"
 #include <iostream>
 #include <cmath>
 #include <FreeImage.h>
 #include <GLUT/glut.h>
+
+// Constants
+const float EPSILON = 0.0001f; // Small value to avoid self-intersection
 
 // Image class implementation
 Image::Image(int w, int h) : width(w), height(h) {
@@ -64,10 +68,9 @@ Ray RayThruPixel(const Camera& cam, int i, int j, int width, int height) {
     // Image plane size
     float aspect = static_cast<float>(width) / static_cast<float>(height);
     float fovyRad = glm::radians(cam.fov);
-    float fovxRad = aspect * fovyRad;
 
     // Horizontal alpha and vertical beta from canonical viewing slide, adding 0.5f to j and i to center the pixel
-    float alpha = tan(0.5f * fovxRad) * (j + 0.5f - 0.5f * width) / (0.5f * width);
+    float alpha = aspect * tan(0.5f * fovyRad) * (j + 0.5f - 0.5f * width) / (0.5f * width);
     float beta = tan(0.5f * fovyRad) * (0.5f * height - i - 0.5f) / (0.5f * height);
 
     // Ray direction in world space
@@ -79,7 +82,6 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
     Intersection hit;
     hit.ray = ray;  // Store the ray for access to camera/view direction
     float closest_t = INFINITY;
-    float epsilon = 0.0001f; // Small value to avoid self-intersection
 
     // Loop over all spheres
     for (size_t i = 0; i < scene.spheres.size(); ++i) {
@@ -110,7 +112,7 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
             // Use the closer intersection point (smaller t value)
             float t = (t1 > 0.0f) ? t1 : t2;
             
-            if (t > epsilon && t < closest_t) {
+            if (t > EPSILON && t < closest_t) {
                 closest_t = t;
                 hit.hit = true;
                 hit.t = t;
@@ -150,7 +152,7 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
         if (fabs(denom) < 1e-6f) continue; // Parallel, no intersection
 
         float t = glm::dot(n, v0 - localOrigin) / denom;
-        if (t < epsilon) continue; // Intersection behind ray origin
+        if (t < EPSILON) continue; // Intersection behind ray origin
         if (t > closest_t) continue; // Intersection is behind the closest intersection
 
         glm::vec3 localPoint = localOrigin + t * localDirection;
@@ -187,9 +189,8 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
     return hit;
 }
 
-glm::vec3 FindColor(const Intersection& hit, const Scene& scene) {
+glm::vec3 FindColor(const Intersection& hit, const Scene& scene, int depth) {
     if (hit.hit) {
-        float epsilon = 0.0001f; // Small value to avoid self-intersection
         
         // Start with ambient and emission
         glm::vec3 color = hit.material.ambient + hit.material.emission;
@@ -215,7 +216,7 @@ glm::vec3 FindColor(const Intersection& hit, const Scene& scene) {
             
             // Check if light is blocked by an object, if it is, it is shadowed, so don't add that light
             // Offset ray origin slightly to avoid self-intersection
-            glm::vec3 shadowRayOrigin = hit.point + epsilon * hit.normal;
+            glm::vec3 shadowRayOrigin = hit.point + EPSILON * hit.normal;
             Ray lightRay = Ray(shadowRayOrigin, lightDir);
             Intersection lightHit = Intersect(lightRay, scene);
             
@@ -242,6 +243,41 @@ glm::vec3 FindColor(const Intersection& hit, const Scene& scene) {
             float NdotH = glm::dot(hit.normal, halfVector);
             if (NdotH > 0.0f) {
                 color += attenuation * light.color * hit.material.specular * pow(NdotH, hit.material.shininess);
+            }
+        }
+        
+        // Recursive reflection ray tracing
+        if (depth < maxDepth) {
+            // Calculate reflection direction: R = V - 2(N·V)N
+            glm::vec3 viewDir = -hit.ray.direction;
+            
+            // Ensure normal is normalized and add numerical stability
+            glm::vec3 normal = glm::normalize(hit.normal);
+            float NdotV = glm::dot(normal, viewDir);
+            
+            // Only reflect if we're not grazing the surface and have a reasonable angle
+            if (NdotV > 0.001f) { // Increased threshold for numerical stability
+                glm::vec3 reflectionDir = viewDir - 2.0f * NdotV * normal;
+                reflectionDir = glm::normalize(reflectionDir);
+                
+                // Create reflection ray with larger offset to avoid self-intersection
+                glm::vec3 reflectionRayOrigin = hit.point + EPSILON * normal;
+                Ray reflectionRay = Ray(reflectionRayOrigin, reflectionDir);
+                
+                // Trace the reflection ray recursively
+                Intersection reflectionHit = Intersect(reflectionRay, scene);
+                
+                // Only add reflection if it hit something different (avoid self-reflection)
+                if (reflectionHit.hit && reflectionHit.t > EPSILON) {
+                    // Additional check: ensure we're not reflecting back to the same surface
+                    float distanceToReflection = glm::length(reflectionHit.point - hit.point);
+                    if (distanceToReflection > EPSILON) {
+                        glm::vec3 reflectionColor = FindColor(reflectionHit, scene, depth + 1);
+                        
+                        // Use specular color as reflection weight (per-channel)
+                        color += hit.material.specular * reflectionColor;
+                    }
+                }
             }
         }
         
@@ -279,7 +315,7 @@ Image Raytrace(const Camera& cam, const Scene& scene, int width, int height) {
             if (hit.hit) {
                 pixelsWithHit++;
             }
-            image(i, j) = FindColor(hit, scene);
+            image(i, j) = FindColor(hit, scene, 0); // Start recursion with depth 0
         }
     }
     

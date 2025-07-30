@@ -62,7 +62,7 @@ public:
 // Ray tracing functions
 Ray RayThruPixel(const Camera& cam, int i, int j, int width, int height);
 Intersection Intersect(const Ray& ray, const Scene& scene);
-glm::vec3 FindColor(const Intersection& hit, const Scene& scene);
+glm::vec3 FindColor(const Intersection& hit, const Scene& scene, int depth = 0);
 Image Raytrace(const Camera& cam, const Scene& scene, int width, int height);
 void ShowRaytraceWindow(const Image& image, int width, int height);
 
