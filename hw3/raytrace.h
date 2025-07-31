@@ -11,6 +11,37 @@ struct Intersection;
 struct Scene;
 class Image;
 
+// Simple bounding box for optimization
+struct BoundingBox {
+    glm::vec3 min;
+    glm::vec3 max;
+    
+    BoundingBox() : min(1e6f, 1e6f, 1e6f), max(-1e6f, -1e6f, -1e6f) {}
+    BoundingBox(const glm::vec3& min, const glm::vec3& max) : min(min), max(max) {}
+    
+    // Check if ray intersects bounding box
+    bool intersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection) const {
+        float tmin = (min.x - rayOrigin.x) / rayDirection.x;
+        float tmax = (max.x - rayOrigin.x) / rayDirection.x;
+        if (rayDirection.x < 0.0f) std::swap(tmin, tmax);
+        
+        float tymin = (min.y - rayOrigin.y) / rayDirection.y;
+        float tymax = (max.y - rayOrigin.y) / rayDirection.y;
+        if (rayDirection.y < 0.0f) std::swap(tymin, tymax);
+        
+        if (tmin > tymax || tymin > tmax) return false;
+        if (tymin > tmin) tmin = tymin;
+        if (tymax < tmax) tmax = tymax;
+        
+        float tzmin = (min.z - rayOrigin.z) / rayDirection.z;
+        float tzmax = (max.z - rayOrigin.z) / rayDirection.z;
+        if (rayDirection.z < 0.0f) std::swap(tzmin, tzmax);
+        
+        if (tmin > tzmax || tzmin > tmax) return false;
+        return true;
+    }
+};
+
 // Ray structure
 struct Ray {
     glm::vec3 origin;
@@ -39,9 +70,16 @@ struct Scene {
     std::vector<Light> lights;
     Material globalAmbient;
     
+    // Bounding boxes for optimization (computed separately)
+    std::vector<BoundingBox> sphereBoxes;
+    std::vector<BoundingBox> triangleBoxes;
+    
     Scene() {
         globalAmbient.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
     }
+    
+    // Compute bounding boxes for all objects
+    void computeBoundingBoxes(const std::vector<Vertex>& vertices);
 };
 
 // Image class

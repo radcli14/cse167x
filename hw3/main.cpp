@@ -44,6 +44,9 @@ int main(int argc, char* argv[]) {
   scene.lights = lights;
   scene.globalAmbient = currentMaterial; // Use current material as global ambient
   
+  // Compute bounding boxes for optimization
+  scene.computeBoundingBoxes(vertices);
+  
   cout << "Created scene with:" << endl;
   cout << "  - " << scene.spheres.size() << " spheres" << endl;
   cout << "  - " << scene.triangles.size() << " triangles" << endl;

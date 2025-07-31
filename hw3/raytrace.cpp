@@ -4,6 +4,7 @@
 #include <cmath>
 #include <FreeImage.h>
 #include <GLUT/glut.h>
+#include <algorithm>
 
 // Constants
 const float EPSILON = 0.0001f; // Small value to avoid self-intersection
@@ -82,10 +83,20 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
     Intersection hit;
     hit.ray = ray;  // Store the ray for access to camera/view direction
     float closest_t = INFINITY;
+    
+    static int totalTests = 0;
+    static int skippedTests = 0;
 
     // Loop over all spheres
     for (size_t i = 0; i < scene.spheres.size(); ++i) {
         const Sphere& sphere = scene.spheres[i];
+        
+        // Quick bounding box test for early rejection
+        totalTests++;
+        if (i < scene.sphereBoxes.size() && !scene.sphereBoxes[i].intersect(ray.origin, ray.direction)) {
+            skippedTests++;
+            continue; // Ray doesn't intersect bounding box, skip detailed test
+        }
         
         // Transform ray to sphere's local coordinate system
         glm::mat4 invTransform = glm::inverse(sphere.transform);
@@ -134,6 +145,13 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
     // Loop over all triangles
     for (size_t i = 0; i < scene.triangles.size(); ++i) {
         const Triangle& tri = scene.triangles[i];
+        
+        // Quick bounding box test for early rejection
+        totalTests++;
+        if (i < scene.triangleBoxes.size() && !scene.triangleBoxes[i].intersect(ray.origin, ray.direction)) {
+            skippedTests++;
+            continue; // Ray doesn't intersect bounding box, skip detailed test
+        }
         
         // Transform ray to triangle's local coordinate system
         glm::mat4 invTransform = glm::inverse(tri.transform);
@@ -186,7 +204,49 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
             hit.material = tri.material;
         }
     }
+    // Print optimization statistics every 10000 intersection tests
+    if (totalTests % 10000 == 0 && totalTests > 0) {
+        float skipRate = (float)skippedTests / totalTests * 100.0f;
+        std::cout << "Bounding box optimization: " << skippedTests << "/" << totalTests 
+                  << " tests skipped (" << skipRate << "%)" << std::endl;
+    }
+    
     return hit;
+}
+
+// Compute bounding boxes for all objects in the scene
+void Scene::computeBoundingBoxes(const std::vector<Vertex>& vertices) {
+    sphereBoxes.clear();
+    triangleBoxes.clear();
+    
+    // Compute bounding boxes for spheres
+    for (const Sphere& sphere : spheres) {
+        // Transform sphere center and radius to world space
+        glm::vec3 worldCenter = glm::vec3(sphere.transform * glm::vec4(sphere.center, 1.0f));
+        float worldRadius = sphere.radius * std::max({sphere.transform[0][0], sphere.transform[1][1], sphere.transform[2][2]});
+        
+        BoundingBox bbox;
+        bbox.min = worldCenter - glm::vec3(worldRadius);
+        bbox.max = worldCenter + glm::vec3(worldRadius);
+        sphereBoxes.push_back(bbox);
+    }
+    
+    // Compute bounding boxes for triangles
+    for (const Triangle& tri : triangles) {
+        BoundingBox bbox;
+        
+        // Get triangle vertices in world space
+        if (tri.v1 < vertices.size() && tri.v2 < vertices.size() && tri.v3 < vertices.size()) {
+            glm::vec3 v1 = glm::vec3(tri.transform * glm::vec4(vertices[tri.v1].position, 1.0f));
+            glm::vec3 v2 = glm::vec3(tri.transform * glm::vec4(vertices[tri.v2].position, 1.0f));
+            glm::vec3 v3 = glm::vec3(tri.transform * glm::vec4(vertices[tri.v3].position, 1.0f));
+            
+            bbox.min = glm::min(glm::min(v1, v2), v3);
+            bbox.max = glm::max(glm::max(v1, v2), v3);
+        }
+        
+        triangleBoxes.push_back(bbox);
+    }
 }
 
 glm::vec3 ComputeLight(glm::vec3 direction, glm::vec3 lightcolor, glm::vec3 normal, glm::vec3 halfvec, glm::vec3 mydiffuse, glm::vec3 myspecular, float myshininess) {

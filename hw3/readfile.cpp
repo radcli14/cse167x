@@ -283,6 +283,8 @@ void readfile(const char* filename)
       getline (in, str); 
     }
 
+
+    
     cout << "Finished parsing scene file: " << filename << endl;
     cout << "Image size: " << imageWidth << "x" << imageHeight << endl;
     cout << "Max depth: " << maxDepth << endl;
