@@ -7,7 +7,7 @@
 #include <algorithm>
 
 // Constants
-const float EPSILON = 0.0001f; // Small value to avoid self-intersection
+const float EPSILON = 0.01f; // Small value to avoid self-intersection
 int totalTests = 0;
 int skippedTests = 0;
 
@@ -375,6 +375,8 @@ Image Raytrace(const Camera& cam, const Scene& scene, int width, int height) {
                           << " pixels (" << (processedPixels * 100 / totalPixels) << "%)" 
                           << " tests: " << totalTests << " skipped: " << skippedTests << " skip rate: " << (float)skippedTests / totalTests * 100.0f << "%"
                           << " pixels with hit: " << pixelsWithHit << std::endl;
+                totalTests = 0;
+                skippedTests = 0;
             }
             
             Ray ray = RayThruPixel(cam, i, j, width, height);
