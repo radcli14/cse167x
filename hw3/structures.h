@@ -69,8 +69,9 @@ struct Triangle {
     int v1, v2, v3;  // Vertex indices
     Material material;
     glm::mat4 transform;
+    bool useSmoothShading;  // Flag to indicate smooth shading
     
-    Triangle() : v1(0), v2(0), v3(0), transform(1.0f) {}
+    Triangle() : v1(0), v2(0), v3(0), transform(1.0f), useSmoothShading(false) {}
 };
 
 #endif 

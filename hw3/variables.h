@@ -11,7 +11,6 @@ extern std::vector<Light> lights;
 extern std::vector<Sphere> spheres;
 extern std::vector<Triangle> triangles;
 extern std::vector<Vertex> vertices;
-extern std::vector<Vertex> verticesWithNormals;
 extern Material currentMaterial;
 extern int maxDepth;
 extern std::string outputFilename;

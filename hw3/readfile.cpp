@@ -124,12 +124,11 @@ void readfile(const char* filename)
             vertices.reserve(maxverts);
             cout << "Parsed MAXVERTS: " << maxverts << endl;
           } 
-        } else if (cmd == "maxvertnorms") {
-          validinput = readvals(s, 1, values); 
-          if (validinput) { 
+                } else if (cmd == "maxvertnorms") {
+          validinput = readvals(s, 1, values);
+          if (validinput) {
             int maxvertnorms = (int) values[0];
-            verticesWithNormals.reserve(maxvertnorms);
-            cout << "Parsed MAXVERTNORMS: " << maxvertnorms << endl;
+            cout << "Parsed MAXVERTNORMS: " << maxvertnorms << " (ignored)" << endl;
           } 
         } else if (cmd == "vertex") {
           validinput = readvals(s, 3, values); // x, y, z
@@ -143,7 +142,7 @@ void readfile(const char* filename)
           if (validinput) {
             Vertex vertex(glm::vec3(values[0], values[1], values[2]), 
                          glm::vec3(values[3], values[4], values[5]));
-            verticesWithNormals.push_back(vertex);
+            vertices.push_back(vertex); // Add to regular vertices array with normal
             cout << "Parsed VERTEXNORMAL: pos(" << values[0] << "," << values[1] << "," << values[2] 
                  << ") normal(" << values[3] << "," << values[4] << "," << values[5] << ")" << endl;
           }
@@ -156,6 +155,8 @@ void readfile(const char* filename)
             triangle.v3 = (int)values[2];
             triangle.transform = transfstack.top();
             triangle.material = currentMaterial;
+            // Enable smooth shading if vertex normals are available
+            triangle.useSmoothShading = true;  // Will be checked in raytracer
             triangles.push_back(triangle);
             cout << "Parsed TRI: vertices(" << (int)values[0] << "," << (int)values[1] << "," << (int)values[2] << ")" << endl;
           }
@@ -168,6 +169,7 @@ void readfile(const char* filename)
             triangle.v3 = (int)values[2];
             triangle.transform = transfstack.top();
             triangle.material = currentMaterial;
+            triangle.useSmoothShading = true;  // Enable smooth shading for trinormal
             triangles.push_back(triangle);
             cout << "Parsed TRINORMAL: vertices(" << (int)values[0] << "," << (int)values[1] << "," << (int)values[2] << ")" << endl;
           }

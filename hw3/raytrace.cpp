@@ -159,6 +159,12 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
         
         // Get triangle vertices in local coordinates
         extern std::vector<Vertex> vertices;
+        
+        // Check bounds
+        if (tri.v1 >= vertices.size() || tri.v2 >= vertices.size() || tri.v3 >= vertices.size()) {
+            continue; // Skip this triangle if indices are invalid
+        }
+        
         const glm::vec3& v0 = vertices[tri.v1].position;
         const glm::vec3& v1 = vertices[tri.v2].position;
         const glm::vec3& v2 = vertices[tri.v3].position;
@@ -196,10 +202,38 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
             // Transform intersection point back to world coordinates
             hit.point = glm::vec3(tri.transform * glm::vec4(localPoint, 1.0f));
             
-            // Transform normal back to world coordinates (transpose of inverse)
-            glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(tri.transform)));
-            hit.normal = glm::normalize(normalMatrix * n);
+            // Compute normal based on shading mode
+            glm::vec3 finalNormal;
+            if (tri.useSmoothShading) {
+                // Smooth shading: interpolate vertex normals using barycentric coordinates
+                // Check if vertices have normals
+                if (tri.v1 < vertices.size() && tri.v2 < vertices.size() && tri.v3 < vertices.size() &&
+                    vertices[tri.v1].normal != glm::vec3(0.0f, 1.0f, 0.0f) && // Default normal
+                    vertices[tri.v2].normal != glm::vec3(0.0f, 1.0f, 0.0f) &&
+                    vertices[tri.v3].normal != glm::vec3(0.0f, 1.0f, 0.0f)) {
+                    
+                    const glm::vec3& n0 = vertices[tri.v1].normal;
+                    const glm::vec3& n1 = vertices[tri.v2].normal;
+                    const glm::vec3& n2 = vertices[tri.v3].normal;
+                    
+                    // Interpolate normals using barycentric coordinates
+                    glm::vec3 interpolatedNormal = u * n0 + v * n1 + w * n2;
+                    
+                    // Transform interpolated normal to world coordinates
+                    glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(tri.transform)));
+                    finalNormal = glm::normalize(normalMatrix * interpolatedNormal);
+                } else {
+                    // Fallback to geometric normal if vertex normals not available
+                    glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(tri.transform)));
+                    finalNormal = glm::normalize(normalMatrix * n);
+                }
+            } else {
+                // Flat shading: use geometric face normal
+                glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(tri.transform)));
+                finalNormal = glm::normalize(normalMatrix * n);
+            }
             
+            hit.normal = finalNormal;
             hit.material = tri.material;
         }
     }
@@ -228,7 +262,7 @@ void Scene::computeBoundingBoxes(const std::vector<Vertex>& vertices) {
     for (const Triangle& tri : triangles) {
         BoundingBox bbox;
         
-        // Get triangle vertices in world space
+        // Use regular vertices array for positions
         if (tri.v1 < vertices.size() && tri.v2 < vertices.size() && tri.v3 < vertices.size()) {
             glm::vec3 v1 = glm::vec3(tri.transform * glm::vec4(vertices[tri.v1].position, 1.0f));
             glm::vec3 v2 = glm::vec3(tri.transform * glm::vec4(vertices[tri.v2].position, 1.0f));
