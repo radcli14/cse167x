@@ -1,8 +1,12 @@
 # cse167x
 _UC San DiegoX Computer Graphics_
 
+![DC Image Rendered with HW3](hw3/dcMyRenderSmooth.png)
+
 This repository contains my notes that I took while watching the videos for this course on edX.
 The code itself are my own solutions to the four homework problems.
+The image above is one that I rendered by creating a model in Blender, exporting it as `.obj` then converting it to the `.test` format used for by the class.
+If you're interested, you can also check out my website at [DC-Engineer.com](https://www.dc-engineer.com).
 
 ## Lecture 1 (Course Overview)
 
@@ -452,8 +456,16 @@ The `readfile.cpp` and `display.cpp` need updating to make sure the files get pa
 - <img width="612" height="344" alt="image" src="https://github.com/user-attachments/assets/3805286a-7bf3-47dc-98d1-a61b35409da0" />
 - <img width="615" height="348" alt="image" src="https://github.com/user-attachments/assets/919fc210-1b81-4060-914e-b57bca536d49" />
 - Area lights are handled by splitting into nxn point lights, randomly jitter to avoid obvious quantization of quantity of visible cells
-- 
 
+## Homework 3
+- The final homework of the class involves creating your own recursive raytracing algorithm from scratch, using C++ and portions of the code from prior homework
+- Primary reusable code is setting up the makefile, adding the GLM and include/lib dependencies, setting up to write an image, some of the `readfile.cpp` code, and the lighting calculations that are included in the fragment shader
+- The assignment does not use OpenGL, but you can make use of its utilities, such as transforms and vector math
+- Passing the assignment requires comparison of seven images to reference images used by the grader, the most challenging being the one below
+- In my own code, I made some optimization to accelerate execution, particularly adding bounding box checks to eliminate many of the primitives from any given hit test, which is less costly than the full triangle intersection algorithm
+- Once I was able to render the assigned images, I also created my own model, and a smooth shading algorithm as an add-on, the results of which are at the top of this readme
+
+![Scene 7](hw3/hw3/scene7.png)
 
 
 
