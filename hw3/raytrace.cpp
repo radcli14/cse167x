@@ -8,6 +8,8 @@
 
 // Constants
 const float EPSILON = 0.0001f; // Small value to avoid self-intersection
+int totalTests = 0;
+int skippedTests = 0;
 
 // Image class implementation
 Image::Image(int w, int h) : width(w), height(h) {
@@ -83,9 +85,6 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
     Intersection hit;
     hit.ray = ray;  // Store the ray for access to camera/view direction
     float closest_t = INFINITY;
-    
-    static int totalTests = 0;
-    static int skippedTests = 0;
 
     // Loop over all spheres
     for (size_t i = 0; i < scene.spheres.size(); ++i) {
@@ -203,12 +202,6 @@ Intersection Intersect(const Ray& ray, const Scene& scene) {
             
             hit.material = tri.material;
         }
-    }
-    // Print optimization statistics every 10000 intersection tests
-    if (totalTests % 10000 == 0 && totalTests > 0) {
-        float skipRate = (float)skippedTests / totalTests * 100.0f;
-        std::cout << "Bounding box optimization: " << skippedTests << "/" << totalTests 
-                  << " tests skipped (" << skipRate << "%)" << std::endl;
     }
     
     return hit;
@@ -380,6 +373,7 @@ Image Raytrace(const Camera& cam, const Scene& scene, int width, int height) {
             if (processedPixels % 10000 == 0) {
                 std::cout << "Progress: " << processedPixels << "/" << totalPixels 
                           << " pixels (" << (processedPixels * 100 / totalPixels) << "%)" 
+                          << " tests: " << totalTests << " skipped: " << skippedTests << " skip rate: " << (float)skippedTests / totalTests * 100.0f << "%"
                           << " pixels with hit: " << pixelsWithHit << std::endl;
             }
             
