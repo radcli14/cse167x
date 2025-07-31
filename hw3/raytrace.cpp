@@ -253,26 +253,37 @@ glm::vec3 FindColor(const Intersection& hit, const Scene& scene, int depth) {
             glm::vec3 halfVector = glm::normalize(viewDir + lightDir);
             
             // Calculate diffuse and specular lighting from the direct source
-            direct += ComputeLight(lightDir, light.color, hit.normal, halfVector, hit.material.diffuse, hit.material.specular, hit.material.shininess);
+            glm::vec3 lightContribution = ComputeLight(lightDir, light.color, hit.normal, halfVector, hit.material.diffuse, hit.material.specular, hit.material.shininess);
+            direct += attenuation * lightContribution;
         }
         
         // Recursive reflection ray tracing
         if (depth < maxDepth) {
-            glm::vec3 reflectionDir = viewDir - 2.0f * NdotV * normal;
-            reflectionDir = glm::normalize(reflectionDir);
-            
-            // Create reflection ray with offset to avoid self-intersection
-            glm::vec3 reflectionRayOrigin = hit.point + EPSILON * normal;
-            Ray reflectionRay = Ray(reflectionRayOrigin, reflectionDir);
-            
-            // Trace the reflection ray recursively
-            Intersection reflectionHit = Intersect(reflectionRay, scene);
-            
-            // Add reflection if it hit something
-            if (reflectionHit.hit && reflectionHit.t > EPSILON) {
-                glm::vec3 reflectionColor = FindColor(reflectionHit, scene, depth + 1);
-                glm::vec3 halfVector = glm::normalize(viewDir + reflectionDir);
-                reflection = ComputeLight(reflectionDir, reflectionColor, hit.normal, halfVector, hit.material.specular, hit.material.specular, hit.material.shininess);
+            // Only reflect if we're not grazing the surface
+            if (NdotV > 0.0f) {
+                glm::vec3 reflectionDir = -(viewDir - 2.0f * NdotV * normal);
+                reflectionDir = glm::normalize(reflectionDir);
+                
+                // Create reflection ray with offset to avoid self-intersection
+                glm::vec3 reflectionRayOrigin = hit.point + EPSILON * normal;
+                Ray reflectionRay = Ray(reflectionRayOrigin, reflectionDir);
+                
+                // Trace the reflection ray recursively
+                Intersection reflectionHit = Intersect(reflectionRay, scene);
+                
+                // Add reflection if it hit something
+                if (reflectionHit.hit && reflectionHit.t > EPSILON) {
+                    glm::vec3 reflectionColor = FindColor(reflectionHit, scene, depth + 1);
+                    
+                    // Calculate half vector for the reflection (between view direction and reflection direction)
+                    glm::vec3 reflectionHalfVector = glm::normalize(viewDir + reflectionDir);
+                    
+                    // Treat the reflection as a light source using ComputeLight
+                    // reflectionDir is the "light direction", reflectionColor is the "light color"
+                    // For reflections, we typically only want the specular component, so set the diffuse to 0.
+                    reflection = ComputeLight(reflectionDir, reflectionColor, normal, reflectionHalfVector, 
+                                            glm::vec3(0.0f, 0.0f, 0.0f), hit.material.specular, hit.material.shininess);
+                }
             }
         }
         
